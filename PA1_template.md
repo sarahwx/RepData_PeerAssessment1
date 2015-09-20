@@ -1,14 +1,10 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r download and process}
+
+```r
 # download data and unzip into folder
 if(!file.exists("./activity.zip")){
         fileUrl = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -29,7 +25,8 @@ data$interval = as.factor(data$interval)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r steps_per_day}
+
+```r
 # Calculate the total number of steps taken per day (ignoring NAs)
 steps_per_day = aggregate(steps ~ date, data, sum)
 
@@ -37,30 +34,66 @@ steps_per_day = aggregate(steps ~ date, data, sum)
 library(ggplot2)
 p_steps = ggplot(steps_per_day, aes(steps))
 p_steps + geom_histogram(fill ="orange")
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![](PA1_template_files/figure-html/steps_per_day-1.png) 
+
+```r
 # Calculate and report the mean and median of the total number of steps taken per day
 mean(steps_per_day$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(steps_per_day$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
-```{r interval}
+
+```r
 # Make a time series plot of the 5-minute interval and the average number of steps taken
 avg_steps = aggregate(steps ~ interval, data, mean)
 p_avg = ggplot(avg_steps, aes(x=interval, y=steps, group=1))
 p_avg + geom_line(color="blue") + theme(axis.text.x = element_text(size=5, angle=90, vjust=1)) 
+```
 
+![](PA1_template_files/figure-html/interval-1.png) 
+
+```r
 # Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 avg_steps$interval[which.max(avg_steps$steps)]
 ```
 
+```
+## [1] 08:35
+## 288 Levels: 00:00 00:05 00:10 00:15 00:20 00:25 00:30 00:35 00:40 ... 23:55
+```
+
 
 ## Imputing missing values
-```{r input value}
+
+```r
 # calculate NA percentage
 mean(is.na(data$steps))
+```
 
+```
+## [1] 0.1311475
+```
+
+```r
 # using interval mean to replace all NA value
 missing_value = rep(avg_steps$steps, length(unique(data$date)))
 
@@ -74,14 +107,34 @@ for (i in 1:nrow(data_new)) {
 steps_new = aggregate(steps ~ date, data_new, sum)
 p_steps_new = ggplot(steps_new, aes(steps))
 p_steps_new + geom_histogram(fill ="red")
+```
 
+```
+## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+```
+
+![](PA1_template_files/figure-html/input value-1.png) 
+
+```r
 # calculate mean and median
 mean(steps_new$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(steps_new$steps)
 ```
 
+```
+## [1] 10766.19
+```
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r weekday vs weekend}
+
+```r
 # get information from date variable
 data_new$day = c()
 for (i in 1:nrow(data_new)) {
@@ -108,3 +161,5 @@ data_split = rbind(avg_weekday, avg_weekend)
 p_day2 = ggplot(data_split, aes(x=interval, y=steps, group=day))
 p_day2 + geom_line(color="green") + facet_grid(day ~ .) + theme(axis.text.x = element_text(size=5, angle=90, vjust=1)) 
 ```
+
+![](PA1_template_files/figure-html/weekday vs weekend-1.png) 
